@@ -81,7 +81,6 @@ public class CodeEditText extends AppCompatEditText {
                 ss.setSpan(new ForegroundColorSpan(Color.parseColor(colorStr)), matcher.start(), matcher.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
-
         return ss;
     }
 

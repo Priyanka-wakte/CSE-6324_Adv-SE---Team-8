@@ -6,63 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/button_tab"
-        android:layout_width="67dp"
-        android:layout_height="35dp"
-        android:text="Tab"
-        android:textAllCaps="false"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.159" />
-
-    <Button
-        android:id="@+id/button_println"
-        android:layout_width="67dp"
-        android:layout_height="35dp"
-        android:text="print"
-        android:textAllCaps="false"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.211"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.159" />
-
-    <Button
-        android:id="@+id/button_quote"
-        android:layout_width="67dp"
-        android:layout_height="35dp"
-        android:text='"'
-        android:textAllCaps="false"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.422"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.159" />
-
-    <Button
-        android:id="@+id/button_semi"
-        android:layout_width="67dp"
-        android:layout_height="35dp"
-        android:text=';'
-        android:textAllCaps="false"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.634"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.159" />
-
     <TableRow
+        android:id="@+id/tableRow2"
         android:layout_width="fill_parent"
         android:layout_height="55dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -72,18 +17,43 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.006">
 
-        <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/adView"
-            android:layout_width="fill_parent"
-            android:layout_height="51dp"
-            ads:adSize="BANNER"
-            ads:adUnitId="ca-app-pub-8100413825150401/6318128082" />
+        <Button
+            android:id="@+id/button_tab"
+            android:layout_width="67dp"
+            android:layout_height="35dp"
+            android:text="Tab"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/button_println"
+            android:layout_width="67dp"
+            android:layout_height="35dp"
+            android:text="print"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/button_quote"
+            android:layout_width="67dp"
+            android:layout_height="35dp"
+            android:text='"'
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/button_semi"
+            android:layout_width="67dp"
+            android:layout_height="35dp"
+            android:text=';'
+            android:textAllCaps="false"
+            android:textSize="12sp" />
     </TableRow>
 
     <compilers.ybdesire.com.pycompiler.CodeEditText
         android:id="@+id/text_input_code"
         android:layout_width="fill_parent"
-        android:layout_height="229dp"
+        android:layout_height="300dp"
         android:gravity="top|left"
         android:inputType="textMultiLine"
         android:padding="20dp"
@@ -93,7 +63,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.393" />
+        app:layout_constraintVertical_bias="0.191" />
 
     <Button
         android:id="@+id/button_compile"
@@ -103,35 +73,54 @@
         android:textAllCaps="false"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.726" />
+        app:layout_constraintVertical_bias="0.65"
+        app:layout_constraintHorizontal_bias="0.75"/>
+
+    <Button
+        android:id="@+id/button_check"
+        android:layout_width="101dp"
+        android:layout_height="43dp"
+        android:text="@string/str_btn_check"
+        android:textAllCaps="false"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.65"
+        app:layout_constraintHorizontal_bias="0.35"/>
+
+
 
     <TextView
         android:id="@+id/txt_output"
         android:layout_width="fill_parent"
-        android:layout_height="112dp"
-        android:textSize="24sp"
-        android:textColor="#141823"
-        android:text="@string/str_txt_output"
+        android:layout_height="150dp"
         android:scrollbars="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/str_txt_output"
+        android:textColor="#141823"
+        android:textSize="20sp"
+        android:windowSoftInputMode="adjustPan"
+        app:layout_constraintBottom_toBottomOf="@+id/tableRow"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.959" />
+        app:layout_constraintVertical_bias="0.988" />
 
     <TableRow
+        android:id="@+id/tableRow"
         android:layout_width="fill_parent"
         android:layout_height="69dp"
+        android:windowSoftInputMode="adjustPan"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.984"  >
+        app:layout_constraintVertical_bias="0.984">
 
     </TableRow>
 

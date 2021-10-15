@@ -1,5 +1,6 @@
 package compilers.ybdesire.com.pycompiler;
 
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,6 +32,7 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
     private AdView mAdView;
 
+    int errorLineNumber;
     private void setText(final TextView text,final String value){
         runOnUiThread(new Runnable() {
             @Override
@@ -45,11 +47,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Admob
+      /*  //Admob
         MobileAds.initialize(this, "ca-app-pub-8100413825150401~5715492852");
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+        mAdView.loadAd(adRequest);*/
 
 
         //Edit Text
@@ -80,6 +82,85 @@ public class MainActivity extends AppCompatActivity {
                 editText.getText().insert(editText.getSelectionStart(), ";");
             }
         });
+
+        //check and show error suggestions
+        Button check=findViewById(R.id.button_check);
+        check.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Thread thread = new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+
+                        try  {
+
+                            // creating okhttp client request
+                            OkHttpClient client = new OkHttpClient();
+                            /* Adding Key Value Pairs for the request body*/
+                            JsonObject postData = new JsonObject();
+                            postData.addProperty("LanguageChoice", "5");
+                            postData.addProperty("Program", editText.getText().toString());
+                            postData.addProperty("Input", "enter_the_input_to_your_code_here");
+
+                            /*Crafting our okhttp post request*/
+                            final MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+                            RequestBody body = RequestBody.create(mediaType, postData.toString());
+                            Request request = new Request.Builder()
+                                    .url("https://code-compiler.p.rapidapi.com/v2")
+                                    .post(body)
+                                    .addHeader("content-type", "application/json")
+                                    .addHeader("x-rapidapi-host", "code-compiler.p.rapidapi.com")
+                                    .addHeader("x-rapidapi-key", "fb06f9962amshae3d838c4414c9cp111592jsn6fc575d99b64")
+                                    .build();
+
+                            //Getting response from the api and integrating it to UI elemnets
+                            String code = editText.getText().toString();
+                            try {
+                                Response response = client.newCall(request).execute();
+                                String responseBody = response.body().string();
+                                JSONObject jdata = new JSONObject(responseBody);
+                                Log.d("myapp", "Error Line Number " + jdata.get("Errors").toString());
+                                if( (!(jdata.getString("Errors")).equals("null") ))
+                                {
+                                    String errorContent=jdata.get("Errors").toString();
+                                    String lines[]=errorContent.split("\n");
+                                    String words[]=lines[0].split(" ");
+                                    errorLineNumber=Integer.parseInt(words[words.length-1]);
+                                    Log.d("myapp", "Error Line Number " + errorLineNumber);
+                                }
+
+
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                thread.start();
+                //disable button and modify color
+                Button btnc=findViewById(R.id.button_check);
+                btnc.setClickable(false);
+                btnc.setBackgroundColor(Color.GRAY);
+
+                //timer for 5s delay and enable button
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Do something after 5s = 5000ms
+                        Button btncc=findViewById(R.id.button_check);
+                        btncc.setClickable(true);
+                        btncc.setBackgroundResource(android.R.drawable.btn_default);
+                    }
+                }, 5000);
+            }
+        });
+
+
         // compile
         btn=findViewById(R.id.button_compile);
         // On clicking on run button in the key word it calls the below method
@@ -111,9 +192,6 @@ public class MainActivity extends AppCompatActivity {
                                     .addHeader("x-rapidapi-key", "fb06f9962amshae3d838c4414c9cp111592jsn6fc575d99b64")
                                     .build();
 
-
-
-
                             //Getting response from the api and integrating it to UI elemnets
                             String code = editText.getText().toString();    
                             try {
@@ -137,10 +215,10 @@ public class MainActivity extends AppCompatActivity {
                                     setText(txtOutput,jdata.get("Errors").toString());
                                 }
 
-
                                 Log.d("myapp", "response " + responseBody);
                                 Log.d("myapp", "errors " + jdata.get("Errors"));
                                 Log.d("myapp", "output " + jdata.get("Result"));
+
                             } catch (UnsupportedEncodingException e) {
                                 e.printStackTrace();
                                 TextView txtOutput=findViewById(R.id.txt_output);//find output label by id
@@ -172,8 +250,6 @@ public class MainActivity extends AppCompatActivity {
                         btncc.setBackgroundResource(android.R.drawable.btn_default);
                     }
                 }, 5000);
-
-
             }
         });
 
