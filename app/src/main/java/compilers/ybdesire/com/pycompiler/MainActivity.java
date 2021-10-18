@@ -2,13 +2,22 @@ package compilers.ybdesire.com.pycompiler;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
+import android.text.Html;
+import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -89,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Thread thread = new Thread(new Runnable() {
 
+                    @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void run() {
 
@@ -127,9 +137,19 @@ public class MainActivity extends AppCompatActivity {
                                     String words[]=lines[0].split(" ");
                                     errorLineNumber=Integer.parseInt(words[words.length-1]);
                                     Log.d("myapp", "Error Line Number " + errorLineNumber);
+
+                                    String highLightText=editText.getText().toString();
+                                    Log.d("myapp", " " +  highLightText);
+                                    String highlightRow=highLightText.split("\n")[errorLineNumber-2];
+                                    SpannableString ss = new SpannableString(highlightRow);
+                                    ss.setSpan(new ForegroundColorSpan(255), 0, highlightRow.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    editText.setText(ss, TextView.BufferType.SPANNABLE);
+
+                                  //  editText.setPaintFlags(editText.getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
+                                    TextView txtOutput=findViewById(R.id.txt_output);//find output label by id
+                                    String Suggestion=ErrorList.getErrorSuggestionText("StringLiteral");
+                                    setText(txtOutput,Suggestion+" At line number "+errorLineNumber);
                                 }
-
-
                             } catch (UnsupportedEncodingException e) {
                                 e.printStackTrace();
                             }
@@ -304,7 +324,5 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-
-
     }
 }
