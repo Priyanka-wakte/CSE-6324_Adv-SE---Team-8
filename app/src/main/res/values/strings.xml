@@ -4,5 +4,6 @@
     <string name ="str_btn_check" translatable="false">Check</string>string>
     <string name="str_txt_output">Output</string>
     <string name="err_network">Network Exception</string>
-
+    <string name="str_btn_export" translatable="false">Export</string>
+    <string name="str_btn_save" translatable="false">Save</string>
 </resources>

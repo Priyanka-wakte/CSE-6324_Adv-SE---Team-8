@@ -1,5 +1,6 @@
 package compilers.ybdesire.com.pycompiler;
 
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -22,6 +23,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -30,7 +32,13 @@ import com.google.gson.JsonObject;
 
 import org.json.JSONObject;
 
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -39,10 +47,17 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
-    private AdView mAdView;
+    private Button saveBtn;
+
+    public String FILE_NAME="code.py";
+
+    public static final String SHARED_PREFS = "sharedPrefs";
+    public static final String TEXT = "text";
+    private String text;
 
     int errorLineNumber;
-    private void setText(final TextView text,final String value){
+
+    private void setText(final TextView text, final String value) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -55,45 +70,54 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-      /*  //Admob
-        MobileAds.initialize(this, "ca-app-pub-8100413825150401~5715492852");
-        mAdView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);*/
-
-
         //Edit Text
-        final AppCompatEditText editText = (AppCompatEditText) findViewById(R.id.text_input_code);
+        final  AppCompatEditText editText = (AppCompatEditText) findViewById(R.id.text_input_code);
+        saveBtn = (Button) findViewById(R.id.save_btn);
+        saveBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                saveData(editText);
+            }
+        });
+        loadData(editText);
 
         //Buttons
-        Button btn=findViewById(R.id.button_tab);
-        btn.setOnClickListener(new View.OnClickListener() {
+
+        Button exp = findViewById(R.id.export_btn);
+        exp.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                String str=editText.getText().toString();
+                Export_File(str);
+            }
+        });
+
+
+            Button btn = findViewById(R.id.button_tab);
+            btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 editText.getText().insert(editText.getSelectionStart(), "    ");
             }
         });
-        btn=findViewById(R.id.button_println);
+        btn = findViewById(R.id.button_println);
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 editText.getText().insert(editText.getSelectionStart(), "print(  )");
             }
         });
-        btn=findViewById(R.id.button_quote);
+        btn = findViewById(R.id.button_if);
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                editText.getText().insert(editText.getSelectionStart(), "\"");
+                editText.getText().insert(editText.getSelectionStart(), "if():"+"\n \t\t\t");
             }
         });
-        btn=findViewById(R.id.button_semi);
+        btn = findViewById(R.id.button_for);
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                editText.getText().insert(editText.getSelectionStart(), ";");
+                editText.getText().insert(editText.getSelectionStart(), "for ():"+"\n\t\t\t");
             }
         });
 
-        //check and show error suggestions
-        Button check=findViewById(R.id.button_check);
+        Button check = findViewById(R.id.button_check);
         check.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Thread thread = new Thread(new Runnable() {
@@ -102,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
 
-                        try  {
+                        try {
 
                             // creating okhttp client request
                             OkHttpClient client = new OkHttpClient();
@@ -130,25 +154,27 @@ public class MainActivity extends AppCompatActivity {
                                 String responseBody = response.body().string();
                                 JSONObject jdata = new JSONObject(responseBody);
                                 Log.d("myapp", "Error Line Number " + jdata.get("Errors").toString());
-                                if( (!(jdata.getString("Errors")).equals("null") ))
-                                {
-                                    String errorContent=jdata.get("Errors").toString();
-                                    String lines[]=errorContent.split("\n");
-                                    String words[]=lines[0].split(" ");
-                                    errorLineNumber=Integer.parseInt(words[words.length-1]);
-                                    Log.d("myapp", "Error Line Number " + errorLineNumber);
+                                if ((!(jdata.getString("Errors")).equals("null"))) {
+                                    String errorContent = jdata.get("Errors").toString();
+                                    String lines[] = errorContent.split("\n");
+                                    String words[] = lines[1].split(" ");
+                                    Log.d("myapp", "lines " + lines.length);
+                                    Log.d("myapp", "words " + errorLineNumber);
+                                    TextView txtOutput = findViewById(R.id.txt_output);//find output label by id
+                                    String Suggestion = null;
+                                    switch ("NameNotFound")
+                                    {
+                                        case "NameNotFound":
+                                        Suggestion=ErrorList.getErrorSuggestionText("NameNotFound");
+                                        break;
+                                    }
 
-                                    String highLightText=editText.getText().toString();
-                                    Log.d("myapp", " " +  highLightText);
-                                    String highlightRow=highLightText.split("\n")[errorLineNumber-2];
-                                    SpannableString ss = new SpannableString(highlightRow);
-                                    ss.setSpan(new ForegroundColorSpan(255), 0, highlightRow.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                    editText.setText(ss, TextView.BufferType.SPANNABLE);
 
-                                  //  editText.setPaintFlags(editText.getPaintFlags() |Paint.UNDERLINE_TEXT_FLAG);
-                                    TextView txtOutput=findViewById(R.id.txt_output);//find output label by id
-                                    String Suggestion=ErrorList.getErrorSuggestionText("StringLiteral");
-                                    setText(txtOutput,Suggestion+" At line number "+errorLineNumber);
+
+                                    setText(txtOutput, Suggestion +" "+errorLineNumber);
+                                } else {
+                                    TextView txtOutput = findViewById(R.id.txt_output);//find output label by id
+                                    setText(txtOutput, "No errors available, good to run the code using Run button");
                                 }
                             } catch (UnsupportedEncodingException e) {
                                 e.printStackTrace();
@@ -162,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
 
                 thread.start();
                 //disable button and modify color
-                Button btnc=findViewById(R.id.button_check);
+                Button btnc = findViewById(R.id.button_check);
                 btnc.setClickable(false);
                 btnc.setBackgroundColor(Color.GRAY);
 
@@ -172,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         // Do something after 5s = 5000ms
-                        Button btncc=findViewById(R.id.button_check);
+                        Button btncc = findViewById(R.id.button_check);
                         btncc.setClickable(true);
                         btncc.setBackgroundResource(android.R.drawable.btn_default);
                     }
@@ -182,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         // compile
-        btn=findViewById(R.id.button_compile);
+        btn = findViewById(R.id.button_compile);
         // On clicking on run button in the key word it calls the below method
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -191,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
 
-                        try  {
+                        try {
 
                             // creating okhttp client request
                             OkHttpClient client = new OkHttpClient();
@@ -213,26 +239,23 @@ public class MainActivity extends AppCompatActivity {
                                     .build();
 
                             //Getting response from the api and integrating it to UI elemnets
-                            String code = editText.getText().toString();    
+                            String code = editText.getText().toString();
                             try {
                                 Response response = client.newCall(request).execute();
                                 String responseBody = response.body().string();
-                                Log.i("myapp", "response body1"+responseBody);
+                                Log.i("myapp", "response body1" + responseBody);
 
                                 Log.d("myapp", "works till here. 2");
 
-                                TextView txtOutput=findViewById(R.id.txt_output);//find output label by id
+                                TextView txtOutput = findViewById(R.id.txt_output);//find output label by id
 
                                 JSONObject jdata = new JSONObject(responseBody);
                                 Log.d("myapp", "jdata " + jdata);
 
-                                if( (jdata.getString("Errors")).equals("null") )
-                                {
-                                    setText(txtOutput,  jdata.get("Result").toString());
-                                }
-                                else
-                                {
-                                    setText(txtOutput,jdata.get("Errors").toString());
+                                if ((jdata.getString("Errors")).equals("null")) {
+                                    setText(txtOutput, jdata.get("Result").toString());
+                                } else {
+                                    setText(txtOutput, jdata.get("Errors").toString());
                                 }
 
                                 Log.d("myapp", "response " + responseBody);
@@ -241,13 +264,13 @@ public class MainActivity extends AppCompatActivity {
 
                             } catch (UnsupportedEncodingException e) {
                                 e.printStackTrace();
-                                TextView txtOutput=findViewById(R.id.txt_output);//find output label by id
-                                setText(txtOutput,getString(R.string.err_network));
+                                TextView txtOutput = findViewById(R.id.txt_output);//find output label by id
+                                setText(txtOutput, getString(R.string.err_network));
                             }
 
                         } catch (Exception e) {
                             e.printStackTrace();
-                            TextView txtOutput=findViewById(R.id.txt_output);//find output label by id
+                            TextView txtOutput = findViewById(R.id.txt_output);//find output label by id
                             txtOutput.setText(getString(R.string.err_network));
                         }
                     }
@@ -255,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
 
                 thread.start();
                 //disable button and modify color
-                Button btnc=findViewById(R.id.button_compile);
+                Button btnc = findViewById(R.id.button_compile);
                 btnc.setClickable(false);
                 btnc.setBackgroundColor(Color.GRAY);
 
@@ -265,16 +288,15 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         // Do something after 5s = 5000ms
-                        Button btncc=findViewById(R.id.button_compile);
+                        Button btncc = findViewById(R.id.button_compile);
                         btncc.setClickable(true);
                         btncc.setBackgroundResource(android.R.drawable.btn_default);
                     }
                 }, 5000);
             }
         });
-
-        //init
-        String str = "import os\n\nprint('hello world')\n";
+//init
+        String str = loadData(editText);
         SpannableString ss = CodeEditText.setHighLight(str);
         editText.setText(ss);
         editText.addTextChangedListener(new TextWatcher() {
@@ -289,16 +311,14 @@ public class MainActivity extends AppCompatActivity {
                 //if(cs.toString().substring(start,start+1).equals(" "))
                 //{
                 //Log.d("onTextChanged", "get space");
-                    /*
-                    SpannableString ss = new SpannableString(cs.toString());
+                   /* SpannableString ss = new SpannableString(cs.toString());
                     String textToSearch = "public";
                     Pattern pattern = Pattern.compile(textToSearch);
                     Matcher matcher = pattern.matcher(ss);
                     while (matcher.find()) {
                         ss.setSpan(new ForegroundColorSpan(Color.RED), matcher.start(), matcher.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
-                    edittext.setText(ss);
-                    */
+                    edittext.setText(ss);*/
                 //}
 
             }
@@ -324,5 +344,40 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
     }
+        public void saveData (AppCompatEditText editText)
+        {
+            SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("TEXT", editText.getText().toString());
+            Log.d("myapp", " " + editText.getText().toString());
+            editor.commit();
+            Toast.makeText(this,"Data Saved", Toast.LENGTH_SHORT).show();
+        }
+
+        public String loadData (AppCompatEditText editText)
+        {
+            SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+            text = sharedPreferences.getString("TEXT", "print(\"Hello World!, on python language\")");
+            Log.d("myapp", " " + text);
+            editText.setText(text);
+            return text;
+        }
+
+        public void Export_File(String str)
+        {
+            String text=str;
+            FileOutputStream fos=null;
+            try {
+                fos=openFileOutput(FILE_NAME,MODE_PRIVATE);
+                fos.write(text.getBytes());
+                Toast.makeText(this,"Data Saved to " + getFilesDir() +"/"+FILE_NAME , Toast.LENGTH_SHORT).show();                } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
 }
