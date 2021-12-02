@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                                     .addHeader("x-rapidapi-key", "fb06f9962amshae3d838c4414c9cp111592jsn6fc575d99b64")
                                     .build();
 
-                            //Getting response from the api and integrating it to UI elemnets
+                            //Getting response from the api and integrating it to UI elements
                             String code = editText.getText().toString();
                             try {
                                 Response response = client.newCall(request).execute();
@@ -156,22 +156,48 @@ public class MainActivity extends AppCompatActivity {
                                 Log.d("myapp", "Error Line Number " + jdata.get("Errors").toString());
                                 if ((!(jdata.getString("Errors")).equals("null"))) {
                                     String errorContent = jdata.get("Errors").toString();
-                                    String lines[] = errorContent.split("\n");
-                                    String words[] = lines[1].split(" ");
-                                    Log.d("myapp", "lines " + lines.length);
-                                    Log.d("myapp", "words " + errorLineNumber);
-                                    TextView txtOutput = findViewById(R.id.txt_output);//find output label by id
-                                    String Suggestion = null;
-                                    switch ("NameNotFound")
+                                    TextView txtOutput = findViewById(R.id.txt_output);
+                                    String out=ErrorList.getErrorSuggestionText(errorContent);
+                                    if(errorContent.contains("EOF"))
                                     {
-                                        case "NameNotFound":
-                                        Suggestion=ErrorList.getErrorSuggestionText("NameNotFound");
-                                        break;
+                                        String[] lines=out.split(" ");
+                                        String line_number=lines[lines.length-1];
+                                        int lineNumber=Integer.parseInt(line_number);
+                                        String code1[]=editText.getText().toString().split("\n");
+                                        String errorLineCode=code1[lineNumber-2];
+                                        String str= "";
+                                        for(int i=0;i<lineNumber-1;i++)
+                                        {
+                                            str=str+code1[i];
+                                        }
+                                        System.out.println("Appeneded code is :"+str);
+                                        editText.setSelection(str.length()-2);
+                                        System.out.println("Code pos is "+str.length());
+                                        editText.getText().insert(str.length(),")");
+                                        setText(txtOutput,"Auto corrected the code by adding ) in the code at line number "+lineNumber);
+                                    }
+                                    else if(errorContent.contains("literal"))
+                                    {
+                                        String[] lines=out.split(" ");
+                                        String line_number=lines[lines.length-1];
+                                        int lineNumber=Integer.parseInt(line_number);
+                                        String code1[]=editText.getText().toString().split("\n");
+                                        String errorLineCode=code1[lineNumber-1];
+                                        String str= "";
+                                       for(int i=0;i<lineNumber;i++)
+                                       {
+                                           str=str+code1[i];
+                                       }
+                                        System.out.println("Appeneded code is :"+str);
+                                        editText.setSelection(str.length());
+                                        System.out.println("Code pos is "+str.length());
+                                        editText.getText().insert(str.length()-1,"\"");
+                                        setText(txtOutput,"Auto corrected the code by adding \" in the code at line number "+lineNumber);
                                     }
 
 
-
-                                    setText(txtOutput, Suggestion +" "+errorLineNumber);
+                                    else
+                                    setText(txtOutput,out);
                                 } else {
                                     TextView txtOutput = findViewById(R.id.txt_output);//find output label by id
                                     setText(txtOutput, "No errors available, good to run the code using Run button");
@@ -336,10 +362,10 @@ public class MainActivity extends AppCompatActivity {
 
                 int po = editText.getSelectionStart();//get cursor
                 SpannableString ss = CodeEditText.setHighLight(str);
-                editText.setText(ss);
+                //editText.setText(ss);
 
-                editText.setSelection(po);//set cursor
-                editText.addTextChangedListener(this);
+               // editText.setSelection(po);//set cursor
+                //editText.addTextChangedListener(this);
 
             }
 
