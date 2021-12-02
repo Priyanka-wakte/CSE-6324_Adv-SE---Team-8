@@ -1,3 +1,26 @@
+# Instructions to run the code
+**Softwares Used**: Android Studio
+**Network Resources**: Rapid API, OKHttp
+**Programming Language Used**: Java
+
+**How to run the app in android studio:** 
+Download the entire project as a zip file. Open the project in Android Studio.
+ 
+We can run our app two ways :  
+By connecting real device with USB  
+We can run on emulator.
+
+We are now using option 2 running application on emulator  
+Steps to execute it: [3]
+In Android Studio create an Android virtual Device (AVD) that the emulator can use to install and run your app.  
+In the toolbar, select your app from the run/debug configurations drop-down menu.  
+From the target device drop-down menu, select the AVD that you want to run your app on. 
+Click Run.  
+Android Studio installs the app on the AVD and starts the emulator. You now see "Hello, World!" displayed in the app.
+
+
+
+
 # app_python_compiler
 Android APP for editing and running python code.
 
